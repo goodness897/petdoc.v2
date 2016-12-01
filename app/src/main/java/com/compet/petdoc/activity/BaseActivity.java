@@ -83,8 +83,8 @@ public class BaseActivity extends AppCompatActivity {
             permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.CAMERA);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
 
         if (permissions.size() > 0) {
