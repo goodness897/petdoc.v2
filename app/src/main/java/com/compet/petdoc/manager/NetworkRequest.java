@@ -25,8 +25,6 @@ public abstract class NetworkRequest extends AsyncTask<Void, Void, String> {
 
     public AsyncResponse result = null;
 
-    protected final static String AUTH_KEY = "536b784f66676f6f313032674544424a";
-
     public static final String POST = "POST";
     private String method = "GET";
 

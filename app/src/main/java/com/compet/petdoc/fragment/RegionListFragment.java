@@ -1,5 +1,6 @@
 package com.compet.petdoc.fragment;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,7 +10,9 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.compet.petdoc.R;
-import com.compet.petdoc.RegionGridAdapter;
+import com.compet.petdoc.controller.RegionGridAdapter;
+import com.compet.petdoc.data.RegionItem;
+import com.compet.petdoc.util.HospitalURL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,7 @@ public class RegionListFragment extends Fragment {
 
     private RegionGridAdapter mAdapter;
 
-    private List<String> regionList;
+    private List<RegionItem> regionList;
 
     public RegionListFragment() {
         // Required empty public constructor
@@ -43,12 +46,9 @@ public class RegionListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_region_list, container, false);
 
+        regionList = new ArrayList<>();
         mAdapter = new RegionGridAdapter(getContext(), R.layout.view_region);
         GridView gridView = (GridView)view.findViewById(R.id.gridView);
-        regionList = new ArrayList<>();
-        regionList.add("광진구");
-        regionList.add("동대문구");
-        regionList.add("강남구");
 
         gridView.setAdapter(mAdapter);
 
@@ -58,7 +58,7 @@ public class RegionListFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
                 getFragmentManager().beginTransaction()
-                                    .replace(R.id.container, new ListDocFragment())
+                                    .replace(R.id.container, ListDocFragment.newInstance(regionList.get(position)))
                                     .addToBackStack(null)
                                     .commit();
             }
@@ -71,6 +71,17 @@ public class RegionListFragment extends Fragment {
     }
 
     private void initData() {
+
+        Resources res = getResources();
+        String[] arrString = res.getStringArray(R.array.seoul_region);
+
+        for (int i = 0; i < arrString.length; i++) {
+            RegionItem regionItem = new RegionItem();
+            regionItem.setName(arrString[i]);
+            regionItem.setUrl(HospitalURL.URL[i]);
+            regionList.add(regionItem);
+        }
+
         if (mAdapter.isEmpty()) {
             mAdapter.addAll(regionList);
         } else {

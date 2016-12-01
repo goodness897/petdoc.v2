@@ -16,6 +16,6 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         fm = getSupportFragmentManager();
-        fm.beginTransaction().replace(R.id.container, new RegionListFragment(), "Region").commit();
+        fm.beginTransaction().replace(R.id.container, new RegionListFragment(), "RegionItem").commit();
     }
 }

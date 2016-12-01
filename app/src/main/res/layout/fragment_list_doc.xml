@@ -2,21 +2,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridView
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:id="@+id/gridView"
+    <ListView
+        android:id="@+id/listView"
         android:verticalSpacing="2dp"
-        android:horizontalSpacing="2dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:clickable="true"
-        android:columnWidth="100dp"
-        android:drawSelectorOnTop="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth" />
+        android:layout_height="wrap_content" />
 
 </FrameLayout>

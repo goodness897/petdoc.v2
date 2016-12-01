@@ -1,4 +1,4 @@
-package com.compet.petdoc;
+package com.compet.petdoc.controller;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.compet.petdoc.R;
+import com.compet.petdoc.data.RegionItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,18 +23,18 @@ public class RegionGridAdapter extends BaseAdapter {
 
     private int layout;
 
-    private ArrayList<String> items = new ArrayList<>();
+    private ArrayList<RegionItem> items = new ArrayList<>();
 
     private LayoutInflater inflater;
 
-    public void add(String image) {
-        items.add(image);
+    public void add(RegionItem regionItem) {
+        items.add(regionItem);
         notifyDataSetChanged();
     }
 
-    public void addAll(List<String> image) {
+    public void addAll(List<RegionItem> regionItemList) {
 
-        items.addAll(image);
+        items.addAll(regionItemList);
         notifyDataSetChanged();
     }
 
@@ -55,7 +58,7 @@ public class RegionGridAdapter extends BaseAdapter {
     }
 
     @Override
-    public String getItem(int position) {
+    public RegionItem getItem(int position) {
         return items.get(position);
     }
 
@@ -70,7 +73,7 @@ public class RegionGridAdapter extends BaseAdapter {
             convertView = inflater.inflate(layout, null);
 
         TextView regionView = (TextView)convertView.findViewById(R.id.text_region);
-        regionView.setText(items.get(position));
+        regionView.setText(items.get(position).getName());
 
         return convertView;
     }
