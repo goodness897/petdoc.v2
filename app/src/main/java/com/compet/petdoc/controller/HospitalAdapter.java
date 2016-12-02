@@ -50,6 +50,11 @@ public class HospitalAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public List<HospitalItem> getListItem() {
+        return items;
+
+    }
+
     @Override
     public int getCount() {
         return items.size();

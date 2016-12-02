@@ -3,6 +3,8 @@ package com.compet.petdoc.fragment;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -28,17 +30,19 @@ public class ListDocFragment extends Fragment implements AbsListView.OnScrollLis
 
     private HospitalAdapter mAdapter;
 
+    private View footerView;
+
     private boolean mLockListView;
 
     private int startIndex = 1;
 
     private int endIndex = 10;
 
-    private View footerView;
-
     private RegionItem regionItem;
 
     private String url;
+
+    private List<RegionItem> regionList;
 
     public ListDocFragment() {
         // Required empty public constructor
@@ -64,6 +68,7 @@ public class ListDocFragment extends Fragment implements AbsListView.OnScrollLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_doc, container, false);
+        setHasOptionsMenu(true);
 
         mAdapter = new HospitalAdapter(getContext());
         ListView listView = (ListView)view.findViewById(R.id.listView);
@@ -98,6 +103,13 @@ public class ListDocFragment extends Fragment implements AbsListView.OnScrollLis
         initData();
 
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+    }
+
 
     private void initData() {
 

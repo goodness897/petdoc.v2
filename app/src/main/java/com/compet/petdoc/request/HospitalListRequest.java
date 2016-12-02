@@ -73,9 +73,11 @@ public class HospitalListRequest extends NetworkRequest implements NetworkReques
                     if (hospital.getString("TRD_STATE_GBN").equals("0000")) {
                         String name = hospital.getString("WRKP_NM");
                         String address = hospital.getString("SITE_ADDR");
+                        String phoneNumber = hospital.getString("SITE_TEL");
                         if (!address.equals("    ")) {
                             hospitalItem.setHosName(name);
                             hospitalItem.setAddress(address);
+                            hospitalItem.setPhoneNumber(phoneNumber);
                             list.add(hospitalItem);
                         }
 

@@ -1,12 +1,15 @@
 package com.compet.petdoc.fragment;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,8 +18,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.compet.petdoc.R;
@@ -34,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +78,11 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
 
     private HospitalItem hospitalItem;
 
+    private List<HospitalItem> hospitalItemList;
+
     private boolean convertAddress = false;
+
+    private ProgressDialog dialog;
 
     public MapDocFragment() {
         // Required empty public constructor
@@ -80,7 +91,16 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
     public static MapDocFragment newInstance(HospitalItem hospitalItem) {
         MapDocFragment fragment = new MapDocFragment();
         Bundle args = new Bundle();
-        args.putSerializable("hospital", hospitalItem);
+        args.putSerializable(Constants.HOSPITAL, hospitalItem);
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static MapDocFragment getListItem(List<HospitalItem> list) {
+        MapDocFragment fragment = new MapDocFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("list", (Serializable)list);
 
         fragment.setArguments(args);
         return fragment;
@@ -96,9 +116,108 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MapsInitializer.initialize(mContext);
+        dialog = new ProgressDialog(getContext());
+        dialog.setMessage("잠시만 기다려주세요");
+        dialog.setCancelable(false);
+        dialog.show();
 
         if (getArguments() != null) {
-            hospitalItem = (HospitalItem)getArguments().getSerializable(Constants.HOSPITAL);
+            if (getArguments().getSerializable(Constants.HOSPITAL) != null) {
+                hospitalItem = (HospitalItem)getArguments().getSerializable(Constants.HOSPITAL);
+            } else if (getArguments().getSerializable("list") != null) {
+                hospitalItemList = (List<HospitalItem>)getArguments().getSerializable("list");
+                Log.d(TAG, "list item : " + hospitalItemList.get(0).getHosName());
+            }
+
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_map_doc, container, false);
+        setHasOptionsMenu(true);
+
+        mapView = (MapView)view.findViewById(R.id.map);
+        Button callButton = (Button)view.findViewById(R.id.btn_call);
+
+        final StringBuilder stringBuilder = new StringBuilder();
+
+        if (hospitalItem != null) {
+            stringBuilder.append("tel:").append(hospitalItem.getPhoneNumber());
+        } else {
+            callButton.setVisibility(View.GONE);
+        }
+
+        callButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(stringBuilder.toString()));
+                startActivity(intent);
+            }
+        });
+
+        if (checkPlayServices()) {
+
+            //            buildGoogleApiClient();
+
+            //Biulding the GoogleMap
+            if (mapView != null) {
+                // Initialise the MapView
+                mapView.onCreate(null);
+                mapView.onResume();
+
+                // Set the map ready callback to receive the GoogleMap object
+                mapView.getMapAsync(this);
+            }
+        }
+
+        return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+    }
+
+    public void setUpGoogleMap() {
+
+        LatLng hospitalLatLng = null;
+
+        if (mGoogleMap != null) {
+
+            mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+            mGoogleMap.getUiSettings().setCompassEnabled(false);
+
+            if (!convertAddress) {
+                if (hospitalItem != null) {
+                    hospitalLatLng = findLatLng(hospitalItem.getAddress());
+                    if (hospitalLatLng != null) {
+                        mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
+                                                                .title(hospitalItem.getHosName()));
+                        //                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(hospitalLatLng, 15));
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hospitalLatLng, 15));
+                        dialog.hide();
+
+                    }
+                } else {
+                    for (int i = 0; i < hospitalItemList.size(); i++) {
+                        hospitalLatLng = findLatLng(hospitalItemList.get(i).getAddress());
+                        if (hospitalLatLng != null) {
+                            mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
+                                                                    .title(hospitalItemList.get(i).getHosName()));
+                        }
+                    }
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(findLatLng(hospitalItemList.get(0)
+                                                                                                       .getAddress()),
+                                                                            15));
+                    dialog.hide();
+
+                }
+            }
 
         }
     }
@@ -137,54 +256,6 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
         return null;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_map_doc, container, false);
-
-        mapView = (MapView)view.findViewById(R.id.map);
-
-        if (checkPlayServices()) {
-
-            //            buildGoogleApiClient();
-
-            //Biulding the GoogleMap
-            if (mapView != null) {
-                // Initialise the MapView
-                mapView.onCreate(null);
-                mapView.onResume();
-
-                // Set the map ready callback to receive the GoogleMap object
-                mapView.getMapAsync(this);
-            }
-        }
-
-        return view;
-    }
-
-    public void setUpGoogleMap() {
-
-        LatLng hospitalLatLng = null;
-
-        if (mGoogleMap != null) {
-
-            if(!convertAddress) {
-                hospitalLatLng = findLatLng(hospitalItem.getAddress());
-            }
-
-            mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
-            mGoogleMap.getUiSettings().setCompassEnabled(false);
-            if (hospitalLatLng != null) {
-                mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng).title(hospitalItem.getHosName()));
-                //                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(hospitalLatLng, 15));
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hospitalLatLng, 15));
-
-            }
-
-        }
-    }
-
     //    protected synchronized void buildGoogleApiClient() {
     //
     //        mGoogleApiClient = new GoogleApiClient.Builder(mContext).addConnectionCallbacks(this)
@@ -211,30 +282,20 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
 
-        //First we need to check if the GoogleMap was not created in OnCreate
         if (mGoogleMap == null) {
 
-            // We need to check availability of play services
             if (checkPlayServices()) {
 
-                //                if (mGoogleApiClient == null) {
-                //                     Building the GoogleApi client
-                //                    buildGoogleApiClient();
-                //                }
-
-                //Biulding the GoogleMap
                 if (mapView != null) {
-                    // Initialise the MapView
+
                     mapView.onCreate(null);
                     mapView.onResume();
 
-                    // Set the map ready callback to receive the GoogleMap object
                     mapView.getMapAsync(this);
                 }
             }
         }
 
-        //GoogleMap exist
         else {
             if (!checkPermission()) {
                 return;
@@ -242,61 +303,6 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    //    private void getUserLocation() {
-    //
-    //        if (!checkPermission()) {
-    //
-    //            userPosition = new LatLng(34.0089919, -118.4996126);
-    //            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, 15));
-    //
-    //            return;
-    //        }
-    //
-    //        if (ContextCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-    //            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-    //        }
-    //
-    //        if (mLastLocation != null) {
-    //
-    //            userPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-    //            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, 15));
-    //
-    //        } else {
-    //            showAlert(ALERT_ADDRESS_RESULT_RECIVER);
-    //        }
-    //
-    //    }
-
-    //    public void showAlert(final int action) {
-    //
-    //        final AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-    //        dialog.setTitle("제목");
-    //        dialog.setMessage("내용");
-    //        dialog.setCancelable(false);
-    //        dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-    //
-    //            @Override
-    //            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-    //
-    //                if (action == 0) {
-    //                    getUserLocation();
-    //                } else {
-    //                    Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-    //                    mContext.startActivity(myIntent);
-    //                }
-    //
-    //            }
-    //        });
-    //
-    //        dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-    //
-    //            @Override
-    //            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-    //            }
-    //        });
-    //        dialog.show();
-    //    }
-    //
     public boolean checkPermission() {
 
         List<String> permissions = new ArrayList<>();
@@ -392,24 +398,6 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
 
         setUpGoogleMap();
 
-        //        mGoogleApiClient.connect();
-
     }
 
-    //    @Override
-    //    public void onConnected(@Nullable Bundle bundle) {
-    //        getUserLocation();
-    //
-    //    }
-    //
-    //    @Override
-    //    public void onConnectionSuspended(int i) {
-    //        mGoogleApiClient.connect();
-    //
-    //    }
-    //
-    //    @Override
-    //    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-    //        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
-    //    }
 }

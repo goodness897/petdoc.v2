@@ -40,7 +40,6 @@ public class SplashActivity extends BaseActivity {
         anim.start();
         if (anim.isRunning()) {
             if (NetworkUtil.getConnectivityStatus(this) == 0) {
-                moveMainActivity();
                 Toast.makeText(this, "Wifi 혹은 데이터를 켜주세요", Toast.LENGTH_LONG).show();
             } else {
                 moveMainActivity();

@@ -7,5 +7,9 @@
     <color name="mainColor">#29C089</color>
     <color name="white">#ffffff</color>
 
+    <color name="transparent">#00000000</color>
+
+    <color name="location_layout">#c19e91</color>
+
 
 </resources>

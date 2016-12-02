@@ -10,6 +10,16 @@ public class HospitalItem implements java.io.Serializable {
 
     private String address;
 
+    private String phoneNumber;
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public String getHosName() {
         return hosName;
     }
