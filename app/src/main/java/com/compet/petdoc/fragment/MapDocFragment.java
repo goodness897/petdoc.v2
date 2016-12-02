@@ -92,7 +92,6 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
         MapDocFragment fragment = new MapDocFragment();
         Bundle args = new Bundle();
         args.putSerializable(Constants.HOSPITAL, hospitalItem);
-
         fragment.setArguments(args);
         return fragment;
     }
@@ -100,8 +99,7 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
     public static MapDocFragment getListItem(List<HospitalItem> list) {
         MapDocFragment fragment = new MapDocFragment();
         Bundle args = new Bundle();
-        args.putSerializable("list", (Serializable)list);
-
+        args.putSerializable(Constants.HOSPITAL_LIST, (Serializable)list);
         fragment.setArguments(args);
         return fragment;
     }
@@ -124,8 +122,8 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
         if (getArguments() != null) {
             if (getArguments().getSerializable(Constants.HOSPITAL) != null) {
                 hospitalItem = (HospitalItem)getArguments().getSerializable(Constants.HOSPITAL);
-            } else if (getArguments().getSerializable("list") != null) {
-                hospitalItemList = (List<HospitalItem>)getArguments().getSerializable("list");
+            } else if (getArguments().getSerializable(Constants.HOSPITAL_LIST) != null) {
+                hospitalItemList = (List<HospitalItem>)getArguments().getSerializable(Constants.HOSPITAL_LIST);
                 Log.d(TAG, "list item : " + hospitalItemList.get(0).getHosName());
             }
 

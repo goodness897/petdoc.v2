@@ -2,6 +2,7 @@ package com.compet.petdoc.fragment;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,7 +19,7 @@ import com.compet.petdoc.util.HospitalURL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFragment extends BaseFragment {
+public class SearchFragment extends Fragment {
 
     private RegionGridAdapter mAdapter;
 

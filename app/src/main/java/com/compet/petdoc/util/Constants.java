@@ -10,6 +10,8 @@ public final class Constants {
 
     public static final String HOSPITAL = "hospital";
 
+    public static final String HOSPITAL_LIST = "list";
+
     public static final String GET = "GET";
 
     public static final String POST = "POST";

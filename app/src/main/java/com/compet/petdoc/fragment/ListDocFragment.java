@@ -120,7 +120,7 @@ public class ListDocFragment extends Fragment implements AbsListView.OnScrollLis
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
                                                               url,
-                                                              "GET",
+                                                              Constants.GET,
                                                               String.valueOf(startIndex),
                                                               String.valueOf(endIndex));
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
@@ -159,7 +159,7 @@ public class ListDocFragment extends Fragment implements AbsListView.OnScrollLis
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
                                                               url,
-                                                              "GET",
+                                                              Constants.GET,
                                                               String.valueOf(startIndex),
                                                               String.valueOf(endIndex));
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
