@@ -51,9 +51,9 @@ import java.util.Locale;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
 public class RegionListFragment extends Fragment implements
-                                GoogleApiClient.ConnectionCallbacks,
-                                GoogleApiClient.OnConnectionFailedListener,
-                                AbsListView.OnScrollListener {
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        AbsListView.OnScrollListener {
 
     private static final String TAG = RegionListFragment.class.getSimpleName();
 
@@ -126,16 +126,16 @@ public class RegionListFragment extends Fragment implements
 
         mListAdd = true;
 
-        locationView = (TextView)view.findViewById(R.id.text_location);
-        Button mapButton = (Button)view.findViewById(R.id.btn_map);
+        locationView = (TextView) view.findViewById(R.id.text_location);
+        Button mapButton = (Button) view.findViewById(R.id.btn_map);
         mapButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 getFragmentManager().beginTransaction()
-                                    .replace(R.id.container, MapDocFragment.getListItem(mAdapter.getListItem()))
-                                    .addToBackStack(null)
-                                    .commit();
+                        .replace(R.id.container, MapDocFragment.getListItem(mAdapter.getListItem()))
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
@@ -150,7 +150,7 @@ public class RegionListFragment extends Fragment implements
         regionList = new ArrayList<>();
         setRegionData();
         mAdapter = new HospitalAdapter(getContext());
-        ListView listView = (ListView)view.findViewById(R.id.listView);
+        ListView listView = (ListView) view.findViewById(R.id.listView);
         footerView = LayoutInflater.from(getContext()).inflate(R.layout.view_footer, null);
         footerView.setVisibility(View.GONE);
         listView.addFooterView(footerView);
@@ -162,9 +162,9 @@ public class RegionListFragment extends Fragment implements
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
                 getFragmentManager().beginTransaction()
-                                    .replace(R.id.container, MapDocFragment.newInstance(mAdapter.getItem(position)))
-                                    .addToBackStack(null)
-                                    .commit();
+                        .replace(R.id.container, MapDocFragment.newInstance(mAdapter.getItem(position)))
+                        .addToBackStack(null)
+                        .commit();
 
             }
         });
@@ -189,9 +189,9 @@ public class RegionListFragment extends Fragment implements
     protected synchronized void buildGoogleApiClient() {
 
         mGoogleApiClient = new GoogleApiClient.Builder(mContext).addConnectionCallbacks(this)
-                                                                .addOnConnectionFailedListener(this)
-                                                                .addApi(LocationServices.API)
-                                                                .build();
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     private boolean checkPlayServices() {
@@ -236,10 +236,10 @@ public class RegionListFragment extends Fragment implements
         mLockListView = true;
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
-                                                              url,
-                                                              "GET",
-                                                              String.valueOf(startIndex),
-                                                              String.valueOf(endIndex));
+                url,
+                Constants.GET,
+                String.valueOf(startIndex),
+                String.valueOf(endIndex));
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
             @Override
@@ -247,7 +247,7 @@ public class RegionListFragment extends Fragment implements
 
                 if (result != null) {
 
-                    mAdapter.addAll((List<HospitalItem>)result);
+                    mAdapter.addAll((List<HospitalItem>) result);
                     mLockListView = false;
                     footerView.setVisibility(View.GONE);
                     mListAdd = false;
@@ -279,10 +279,10 @@ public class RegionListFragment extends Fragment implements
         endIndex = endIndex + 10;
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
-                                                              url,
-                                                              "GET",
-                                                              String.valueOf(startIndex),
-                                                              String.valueOf(endIndex));
+                url,
+                Constants.GET,
+                String.valueOf(startIndex),
+                String.valueOf(endIndex));
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
             @Override
@@ -290,7 +290,7 @@ public class RegionListFragment extends Fragment implements
 
                 if (result != null) {
 
-                    mAdapter.addItem((List<HospitalItem>)result);
+                    mAdapter.addItem((List<HospitalItem>) result);
                     mLockListView = false;
                 } else {
                     footerView.setVisibility(View.GONE);
@@ -319,7 +319,7 @@ public class RegionListFragment extends Fragment implements
         if (mLastLocation != null) {
 
             Log.d(TAG,
-                  "latitude : " + mLastLocation.getLatitude() + " " + "longitude : " + mLastLocation.getLongitude());
+                    "latitude : " + mLastLocation.getLatitude() + " " + "longitude : " + mLastLocation.getLongitude());
             String address = changeAddress(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             String[] addressLine = address.split(" ");
             StringBuilder stringBuilder = new StringBuilder();
@@ -330,6 +330,13 @@ public class RegionListFragment extends Fragment implements
                     regionItem = regionList.get(i);
                     initData();
                     return;
+                } else {
+
+                    dialog.hide();
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.container, SearchFragment.newInstance())
+                            .commit();
+
                 }
             }
 
@@ -364,17 +371,17 @@ public class RegionListFragment extends Fragment implements
     public void checkPermission(final Context context) {
         List<String> permissions = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(getContext(),
-                                              Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
         if (ContextCompat.checkSelfPermission(getContext(),
-                                              Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
 
         if (ContextCompat.checkSelfPermission(getContext(),
-                                              Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
 
@@ -398,7 +405,7 @@ public class RegionListFragment extends Fragment implements
 
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCompat.requestPermissions((Activity)context, perms, RC_PERMISSION);
+                        ActivityCompat.requestPermissions((Activity) context, perms, RC_PERMISSION);
                     }
                 });
                 builder.create().show();
@@ -432,15 +439,15 @@ public class RegionListFragment extends Fragment implements
 
     private void requestLocation(String longitude, String latitude) {
         DaumCoordToAddressRequest request = new DaumCoordToAddressRequest(getContext(),
-                                                                          Constants.GET,
-                                                                          longitude,
-                                                                          latitude);
+                Constants.GET,
+                longitude,
+                latitude);
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
             @Override
             public void onSuccess(NetworkRequest request, Object result) {
 
-                String address = (String)result;
+                String address = (String) result;
                 locationView.setText(address);
 
             }
