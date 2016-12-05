@@ -11,5 +11,11 @@
 
     <color name="location_layout">#c19e91</color>
 
+    <color name="brightGray">#f9f9f9</color>
+    <color name="gray">#BCBCBC</color>
+    <color name="brightCoolGray">#EFEFEF</color>
+    <color name="coolGray">#D6DADA</color>
+    <color name="transparentCoolGray">#CCD6DADA</color>
+
 
 </resources>

@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,12 +50,12 @@ import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
-public class RegionListFragment extends Fragment implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        AbsListView.OnScrollListener {
+public class MainFragment extends BaseFragment implements
+                          GoogleApiClient.ConnectionCallbacks,
+                          GoogleApiClient.OnConnectionFailedListener,
+                          AbsListView.OnScrollListener {
 
-    private static final String TAG = RegionListFragment.class.getSimpleName();
+    private static final String TAG = MainFragment.class.getSimpleName();
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
@@ -86,18 +86,28 @@ public class RegionListFragment extends Fragment implements
 
     private RegionItem regionItem;
 
+    private HospitalItem hospitalItem;
+
     private String url;
 
     private List<RegionItem> regionList;
 
     private ProgressDialog dialog;
 
-    public RegionListFragment() {
+    public MainFragment() {
         // Required empty public constructor
     }
 
-    public static RegionListFragment newInstance() {
-        RegionListFragment fragment = new RegionListFragment();
+    public static MainFragment newInstance(RegionItem regionItem) {
+        MainFragment fragment = new MainFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(Constants.REGION, regionItem);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static MainFragment newInstance() {
+        MainFragment fragment = new MainFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -112,7 +122,10 @@ public class RegionListFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        checkPermission(getContext());
+        if (getArguments() != null) {
+            regionItem = (RegionItem)getArguments().getSerializable(Constants.REGION);
+        }
+        checkPermission(mContext);
 
     }
 
@@ -120,54 +133,70 @@ public class RegionListFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_region_list, container, false);
+        setHasOptionsMenu(true);
+        initToolBar(getString(R.string.app_name), view, mContext);
+
         dialog = new ProgressDialog(getContext(), R.style.MyTheme);
         dialog.setCancelable(false);
-        dialog.show();
 
         mListAdd = true;
 
-        locationView = (TextView) view.findViewById(R.id.text_location);
-        Button mapButton = (Button) view.findViewById(R.id.btn_map);
+        locationView = (TextView)view.findViewById(R.id.text_location);
+
+        LinearLayout layoutLocation = (LinearLayout)view.findViewById(R.id.layout_location);
+        layoutLocation.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                getFragmentManager().beginTransaction()
+                                    .replace(R.id.container, SearchFragment.newInstance())
+                                    .commit();
+            }
+        });
+        Button mapButton = (Button)view.findViewById(R.id.btn_map);
         mapButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.container, MapDocFragment.getListItem(mAdapter.getListItem()))
-                        .addToBackStack(null)
-                        .commit();
+                                    .replace(R.id.container, MapDocFragment.getListItem(mAdapter.getListItem()))
+                                    .addToBackStack(null)
+                                    .commit();
             }
         });
 
         if (checkPlayServices()) {
-
             // Building the GoogleApi client
             buildGoogleApiClient();
-
         }
-
         mGoogleApiClient.connect();
         regionList = new ArrayList<>();
-        setRegionData();
+
         mAdapter = new HospitalAdapter(getContext());
-        ListView listView = (ListView) view.findViewById(R.id.listView);
+        ListView listView = (ListView)view.findViewById(R.id.listView);
         footerView = LayoutInflater.from(getContext()).inflate(R.layout.view_footer, null);
         footerView.setVisibility(View.GONE);
         listView.addFooterView(footerView);
         listView.setOnScrollListener(this);
-        listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.container, MapDocFragment.newInstance(mAdapter.getItem(position)))
-                        .addToBackStack(null)
-                        .commit();
-
+                                    .replace(R.id.container, DetailFragment.newInstance(mAdapter.getItem(position)))
+                                    .addToBackStack(null)
+                                    .commit();
             }
         });
+        listView.setAdapter(mAdapter);
+
+        if (regionItem == null) {
+            setRegionData();
+        } else {
+            initData();
+            locationView.setText(regionItem.getName());
+        }
 
         return view;
     }
@@ -189,9 +218,9 @@ public class RegionListFragment extends Fragment implements
     protected synchronized void buildGoogleApiClient() {
 
         mGoogleApiClient = new GoogleApiClient.Builder(mContext).addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+                                                                .addOnConnectionFailedListener(this)
+                                                                .addApi(LocationServices.API)
+                                                                .build();
     }
 
     private boolean checkPlayServices() {
@@ -211,6 +240,7 @@ public class RegionListFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
+        dialog.show();
         startIndex = 1;
         endIndex = 10;
 
@@ -236,10 +266,10 @@ public class RegionListFragment extends Fragment implements
         mLockListView = true;
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
-                url,
-                Constants.GET,
-                String.valueOf(startIndex),
-                String.valueOf(endIndex));
+                                                              url,
+                                                              Constants.GET,
+                                                              String.valueOf(startIndex),
+                                                              String.valueOf(endIndex));
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
             @Override
@@ -247,7 +277,7 @@ public class RegionListFragment extends Fragment implements
 
                 if (result != null) {
 
-                    mAdapter.addAll((List<HospitalItem>) result);
+                    mAdapter.addAll((List<HospitalItem>)result);
                     mLockListView = false;
                     footerView.setVisibility(View.GONE);
                     mListAdd = false;
@@ -279,10 +309,10 @@ public class RegionListFragment extends Fragment implements
         endIndex = endIndex + 10;
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
-                url,
-                Constants.GET,
-                String.valueOf(startIndex),
-                String.valueOf(endIndex));
+                                                              url,
+                                                              Constants.GET,
+                                                              String.valueOf(startIndex),
+                                                              String.valueOf(endIndex));
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
             @Override
@@ -290,7 +320,7 @@ public class RegionListFragment extends Fragment implements
 
                 if (result != null) {
 
-                    mAdapter.addItem((List<HospitalItem>) result);
+                    mAdapter.addItem((List<HospitalItem>)result);
                     mLockListView = false;
                 } else {
                     footerView.setVisibility(View.GONE);
@@ -319,28 +349,37 @@ public class RegionListFragment extends Fragment implements
         if (mLastLocation != null) {
 
             Log.d(TAG,
-                    "latitude : " + mLastLocation.getLatitude() + " " + "longitude : " + mLastLocation.getLongitude());
+                  "latitude : " + mLastLocation.getLatitude() + " " + "longitude : " + mLastLocation.getLongitude());
             String address = changeAddress(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             String[] addressLine = address.split(" ");
             StringBuilder stringBuilder = new StringBuilder();
+            regionItem = searchRegion(addressLine);
             stringBuilder.append(addressLine[2]).append(" ").append(addressLine[3]);
             locationView.setText(stringBuilder.toString());
-            for (int i = 0; i < regionList.size(); i++) {
-                if (regionList.get(i).getName().equals(addressLine[2])) {
-                    regionItem = regionList.get(i);
-                    initData();
-                    return;
-                } else {
+            if (regionItem != null) {
+                initData();
 
-                    dialog.hide();
-                    getFragmentManager().beginTransaction()
-                            .replace(R.id.container, SearchFragment.newInstance())
-                            .commit();
-
-                }
+            } else {
+                dialog.hide();
             }
-
+        } else {
+            dialog.hide();
         }
+    }
+
+    private RegionItem searchRegion(String[] addressLine) {
+        for (int i = 0; i < regionList.size(); i++) {
+            if (regionList.get(i).getName().equals(addressLine[2])) {
+                regionItem = regionList.get(i);
+                return regionItem;
+            } else {
+                dialog.hide();
+                //                    getFragmentManager().beginTransaction()
+                //                            .replace(R.id.container, SearchFragment.newInstance())
+                //                            .commit();
+            }
+        }
+        return null;
     }
 
     private String changeAddress(double latitude, double longitude) {
@@ -371,17 +410,17 @@ public class RegionListFragment extends Fragment implements
     public void checkPermission(final Context context) {
         List<String> permissions = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                              Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
         if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                              Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
 
         if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                              Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
 
@@ -405,7 +444,7 @@ public class RegionListFragment extends Fragment implements
 
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCompat.requestPermissions((Activity) context, perms, RC_PERMISSION);
+                        ActivityCompat.requestPermissions((Activity)context, perms, RC_PERMISSION);
                     }
                 });
                 builder.create().show();
@@ -424,7 +463,10 @@ public class RegionListFragment extends Fragment implements
         if (requestCode == RC_PERMISSION) {
             if (permissions != null) {
                 boolean granted = true;
-                getUserLocation();
+                if (regionItem == null) {
+                    getUserLocation();
+
+                }
                 for (int i = 0; i < permissions.length; i++) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                         granted = false;
@@ -439,15 +481,15 @@ public class RegionListFragment extends Fragment implements
 
     private void requestLocation(String longitude, String latitude) {
         DaumCoordToAddressRequest request = new DaumCoordToAddressRequest(getContext(),
-                Constants.GET,
-                longitude,
-                latitude);
+                                                                          Constants.GET,
+                                                                          longitude,
+                                                                          latitude);
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
             @Override
             public void onSuccess(NetworkRequest request, Object result) {
 
-                String address = (String) result;
+                String address = (String)result;
                 locationView.setText(address);
 
             }
@@ -461,7 +503,10 @@ public class RegionListFragment extends Fragment implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        getUserLocation();
+
+        if (mAdapter.isEmpty() && locationView.getText().toString().equals("위치")) {
+            getUserLocation();
+        }
     }
 
     @Override
@@ -490,4 +535,5 @@ public class RegionListFragment extends Fragment implements
         }
 
     }
+
 }

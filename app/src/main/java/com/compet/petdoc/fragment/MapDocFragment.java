@@ -1,15 +1,12 @@
 package com.compet.petdoc.fragment;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.compet.petdoc.R;
@@ -37,6 +33,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
@@ -52,7 +49,7 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
  * A simple {@link Fragment} subclass. Use the {@link MapDocFragment#newInstance} factory method to create an instance
  * of this fragment.
  */
-public class MapDocFragment extends Fragment implements OnMapReadyCallback {
+public class MapDocFragment extends BaseFragment implements OnMapReadyCallback {
 
     private static final String TAG = MapDocFragment.class.getSimpleName();
 
@@ -82,7 +79,6 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
 
     private boolean convertAddress = false;
 
-    private ProgressDialog dialog;
 
     public MapDocFragment() {
         // Required empty public constructor
@@ -114,10 +110,6 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MapsInitializer.initialize(mContext);
-        dialog = new ProgressDialog(getContext());
-        dialog.setMessage("잠시만 기다려주세요");
-        dialog.setCancelable(false);
-        dialog.show();
 
         if (getArguments() != null) {
             if (getArguments().getSerializable(Constants.HOSPITAL) != null) {
@@ -136,25 +128,10 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
         View view = inflater.inflate(R.layout.fragment_map_doc, container, false);
         setHasOptionsMenu(true);
 
+        initToolBar("지도", view, mContext);
+
+
         mapView = (MapView)view.findViewById(R.id.map);
-        Button callButton = (Button)view.findViewById(R.id.btn_call);
-
-        final StringBuilder stringBuilder = new StringBuilder();
-
-        if (hospitalItem != null) {
-            stringBuilder.append("tel:").append(hospitalItem.getPhoneNumber());
-        } else {
-            callButton.setVisibility(View.GONE);
-        }
-
-        callButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(stringBuilder.toString()));
-                startActivity(intent);
-            }
-        });
 
         if (checkPlayServices()) {
 
@@ -189,16 +166,44 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
             mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
             mGoogleMap.getUiSettings().setCompassEnabled(false);
+            mGoogleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    if (hospitalItem != null) {
+                        getFragmentManager().beginTransaction()
+                                            .replace(R.id.container, DetailFragment.newInstance(hospitalItem))
+                                            .addToBackStack(null)
+                                            .commit();
+                    } else {
+                        for (int i = 0; i < hospitalItemList.size(); i++) {
+                            if (marker.getTitle().equals(hospitalItemList.get(i).getHosName())) {
+                                hospitalItem = hospitalItemList.get(i);
+                                Log.d(TAG, "병원 이름 : " + hospitalItem.getHosName());
+                                getFragmentManager().beginTransaction()
+                                        .replace(R.id.container, DetailFragment.newInstance(hospitalItem))
+                                        .addToBackStack(null)
+                                        .commit();
+                                return;
+                            }
+                        }
+
+                    }
+
+                }
+            });
 
             if (!convertAddress) {
                 if (hospitalItem != null) {
                     hospitalLatLng = findLatLng(hospitalItem.getAddress());
                     if (hospitalLatLng != null) {
-                        mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
-                                                                .title(hospitalItem.getHosName()));
+
+                        Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
+                                                                                .title(hospitalItem.getHosName()));
+                        marker.showInfoWindow();
+
                         //                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(hospitalLatLng, 15));
                         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hospitalLatLng, 15));
-                        dialog.hide();
 
                     }
                 } else {
@@ -212,7 +217,6 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(findLatLng(hospitalItemList.get(0)
                                                                                                        .getAddress()),
                                                                             15));
-                    dialog.hide();
 
                 }
             }
@@ -254,7 +258,7 @@ public class MapDocFragment extends Fragment implements OnMapReadyCallback {
         return null;
     }
 
-    //    protected synchronized void buildGoogleApiClient() {
+    //    tected synchronized void buildGoogleApiClient() {
     //
     //        mGoogleApiClient = new GoogleApiClient.Builder(mContext).addConnectionCallbacks(this)
     //                                                                .addOnConnectionFailedListener(this)

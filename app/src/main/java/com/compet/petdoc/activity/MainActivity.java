@@ -2,13 +2,10 @@ package com.compet.petdoc.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.compet.petdoc.R;
-import com.compet.petdoc.fragment.RegionListFragment;
-import com.compet.petdoc.fragment.SearchFragment;
+import com.compet.petdoc.fragment.MainFragment;
 
 public class MainActivity extends BaseActivity {
 
@@ -22,28 +19,9 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initToolBar(getString(R.string.app_name));
 
         fm = getSupportFragmentManager();
-        fm.beginTransaction().replace(R.id.container, new RegionListFragment(), "RegionItem").commitAllowingStateLoss();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_search_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_search) {
-            fm.beginTransaction()
-              .replace(R.id.container, new SearchFragment(), "RegionItem")
-              .addToBackStack(null)
-              .commitAllowingStateLoss();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        fm.beginTransaction().replace(R.id.container, new MainFragment(), "RegionItem").commitAllowingStateLoss();
     }
 
     @Override

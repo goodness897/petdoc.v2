@@ -5,6 +5,36 @@
     android:orientation="vertical"
     tools:context="com.compet.petdoc.fragment.SearchFragment">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/main_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/mainColor"
+        android:minHeight="?attr/actionBarSize">
+
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingBottom="8dp"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <Button
+        android:id="@+id/btn_my_location"
+        android:text="내 위치로"
+        android:textColor="@color/white"
+        android:background="@color/location_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
     <GridView
         android:id="@+id/gridView"
         android:layout_width="match_parent"

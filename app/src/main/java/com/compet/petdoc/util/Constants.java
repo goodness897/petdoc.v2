@@ -27,4 +27,8 @@ public final class Constants {
     public static final int FAILURE_RESULT = 1;
 
     public static final String RESULT_DATA_KEY = PACKAGE_NAME + ".RESULT_DATA_KEY";
+
+    public static final String ACTION_EVENT = "com.compet.petdoc.widget.ACTION_EVENT";
+
+    public static final String ACTION_ACTIVITY = "com.compet.petdoc.widget.ACTION_ACTIVITY";
 }
