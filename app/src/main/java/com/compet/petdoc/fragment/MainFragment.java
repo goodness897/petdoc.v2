@@ -2,7 +2,6 @@ package com.compet.petdoc.fragment;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -33,7 +32,6 @@ import com.compet.petdoc.data.HospitalItem;
 import com.compet.petdoc.data.RegionItem;
 import com.compet.petdoc.manager.NetworkManager;
 import com.compet.petdoc.manager.NetworkRequest;
-import com.compet.petdoc.request.DaumCoordToAddressRequest;
 import com.compet.petdoc.request.HospitalListRequest;
 import com.compet.petdoc.util.Constants;
 import com.compet.petdoc.util.HospitalURL;
@@ -92,8 +90,6 @@ public class MainFragment extends BaseFragment implements
 
     private List<RegionItem> regionList;
 
-    private ProgressDialog dialog;
-
     public MainFragment() {
         // Required empty public constructor
     }
@@ -136,9 +132,6 @@ public class MainFragment extends BaseFragment implements
         setHasOptionsMenu(true);
         initToolBar(getString(R.string.app_name), view, mContext);
 
-        dialog = new ProgressDialog(getContext(), R.style.MyTheme);
-        dialog.setCancelable(false);
-
         mListAdd = true;
 
         locationView = (TextView)view.findViewById(R.id.text_location);
@@ -148,9 +141,7 @@ public class MainFragment extends BaseFragment implements
 
             @Override
             public void onClick(View view) {
-                getFragmentManager().beginTransaction()
-                                    .replace(R.id.container, SearchFragment.newInstance())
-                                    .commit();
+                getFragmentManager().beginTransaction().replace(R.id.container, SearchFragment.newInstance()).commit();
             }
         });
         Button mapButton = (Button)view.findViewById(R.id.btn_map);
@@ -240,7 +231,6 @@ public class MainFragment extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        dialog.show();
         startIndex = 1;
         endIndex = 10;
 
@@ -281,7 +271,6 @@ public class MainFragment extends BaseFragment implements
                     mLockListView = false;
                     footerView.setVisibility(View.GONE);
                     mListAdd = false;
-                    dialog.hide();
 
                 }
 
@@ -291,7 +280,6 @@ public class MainFragment extends BaseFragment implements
             public void onFail(NetworkRequest request, int errorCode, String errorMessage) {
                 mLockListView = false;
                 mListAdd = false;
-                dialog.hide();
                 footerView.setVisibility(View.GONE);
                 Toast.makeText(getContext(), "서버 오류 입니다. 다음에 다시 시도해주세요.", Toast.LENGTH_LONG);
 
@@ -360,10 +348,8 @@ public class MainFragment extends BaseFragment implements
                 initData();
 
             } else {
-                dialog.hide();
             }
         } else {
-            dialog.hide();
         }
     }
 
@@ -373,7 +359,6 @@ public class MainFragment extends BaseFragment implements
                 regionItem = regionList.get(i);
                 return regionItem;
             } else {
-                dialog.hide();
                 //                    getFragmentManager().beginTransaction()
                 //                            .replace(R.id.container, SearchFragment.newInstance())
                 //                            .commit();
@@ -479,27 +464,7 @@ public class MainFragment extends BaseFragment implements
         }
     }
 
-    private void requestLocation(String longitude, String latitude) {
-        DaumCoordToAddressRequest request = new DaumCoordToAddressRequest(getContext(),
-                                                                          Constants.GET,
-                                                                          longitude,
-                                                                          latitude);
-        NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
-            @Override
-            public void onSuccess(NetworkRequest request, Object result) {
-
-                String address = (String)result;
-                locationView.setText(address);
-
-            }
-
-            @Override
-            public void onFail(NetworkRequest request, int errorCode, String errorMessage) {
-
-            }
-        });
-    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

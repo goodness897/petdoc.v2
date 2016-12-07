@@ -1,6 +1,9 @@
 package com.compet.petdoc.fragment;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,6 +66,12 @@ public class DetailFragment extends BaseFragment {
         locationView.setText(hospitalItem.getAddress());
 
         Button callButton = (Button)view.findViewById(R.id.btn_call);
+        if(hospitalItem.getPhoneNumber().equals("")) {
+            callButton.setEnabled(false);
+            callButton.setBackgroundColor(Color.GRAY);
+        } else {
+            callButton.setEnabled(true);
+        }
         callButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -72,6 +81,10 @@ public class DetailFragment extends BaseFragment {
                 } else {
                     stringBuilder.append("tel:").append(hospitalItem.getPhoneNumber());
                 }
+
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(stringBuilder.toString()));
+                startActivity(intent);
+
             }
         });
 
