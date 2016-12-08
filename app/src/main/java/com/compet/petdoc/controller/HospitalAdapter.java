@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.compet.petdoc.R;
@@ -96,6 +97,8 @@ public class HospitalAdapter extends BaseAdapter {
 
         TextView titleView = (TextView)convertView.findViewById(R.id.text_hospital_name);
         TextView addressView = (TextView)convertView.findViewById(R.id.text_hospital_address);
+        ImageView mapView = (ImageView)convertView.findViewById(R.id.image_map);
+
 
         Button mapButton = (Button)convertView.findViewById(R.id.btn_map);
         Button callButton = (Button)convertView.findViewById(R.id.btn_call);
@@ -124,12 +127,18 @@ public class HospitalAdapter extends BaseAdapter {
                 context.startActivity(intent);
             }
         });
+        
+        
 
         HospitalItem hospitalItem = items.get(position);
+
+
         titleView.setText(hospitalItem.getHosName());
         addressView.setText(hospitalItem.getAddress());
+
 
         return convertView;
 
     }
+
 }

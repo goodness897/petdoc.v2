@@ -3,6 +3,7 @@ package com.compet.petdoc.fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -65,11 +66,12 @@ public class SearchFragment extends BaseFragment {
 
         Button button = (Button)view.findViewById(R.id.btn_my_location);
         button.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.container, MainFragment.newInstance())
-                        .commit();
+                FragmentManager fm = getFragmentManager();
+                fm.popBackStack();
+                fm.beginTransaction().replace(R.id.container, MainFragment.newInstance()).commit();
             }
         });
         GridView gridView = (GridView)view.findViewById(R.id.gridView);
@@ -80,9 +82,12 @@ public class SearchFragment extends BaseFragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
-                getFragmentManager().beginTransaction()
-                                    .replace(R.id.container, MainFragment.newInstance(regionList.get(position)))
-                                    .commit();
+                FragmentManager fm = getFragmentManager();
+                fm.popBackStack();
+                fm.beginTransaction()
+                  .replace(R.id.container, MainFragment.newInstance(regionList.get(position)))
+                  .commit();
+
             }
 
         });

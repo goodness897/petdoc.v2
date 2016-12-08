@@ -5,13 +5,16 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.compet.petdoc.R;
 import com.compet.petdoc.data.HospitalItem;
 import com.compet.petdoc.util.Constants;
@@ -19,6 +22,8 @@ import com.compet.petdoc.util.Constants;
 public class DetailFragment extends BaseFragment {
 
     private HospitalItem hospitalItem;
+
+    private static final String TAG = DetailFragment.class.getSimpleName();
 
     private Context mContext;
 
@@ -55,7 +60,9 @@ public class DetailFragment extends BaseFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        initToolBar("상세 페이지", view, mContext);
+        initToolBar("", view, mContext);
+
+        toolbar.bringToFront();
 
         final StringBuilder stringBuilder = new StringBuilder();
 
@@ -65,8 +72,20 @@ public class DetailFragment extends BaseFragment {
         titleView.setText(hospitalItem.getHosName());
         locationView.setText(hospitalItem.getAddress());
 
+        String path = "https://maps.googleapis.com/maps/api/staticmap?center=" + hospitalItem.getLongitude()
+                      + ","
+                      + hospitalItem.getLatitude()
+                      + "&zoom=14&size=400x400&markers=icon:http://www.free-icons-download.net/images/location-map-marker-icons-47237.png%7C"
+                      + hospitalItem.getLongitude()
+                      + ","
+                      + hospitalItem.getLatitude();
+        Log.d(TAG, "url : " + path);
+
+        ImageView hospitalImage = (ImageView)view.findViewById(R.id.image_hospital);
+        Glide.with(mContext).load(path).centerCrop().placeholder(R.drawable.image_petdoc).into(hospitalImage);
+
         Button callButton = (Button)view.findViewById(R.id.btn_call);
-        if(hospitalItem.getPhoneNumber().equals("")) {
+        if (hospitalItem.getPhoneNumber().equals("")) {
             callButton.setEnabled(false);
             callButton.setBackgroundColor(Color.GRAY);
         } else {

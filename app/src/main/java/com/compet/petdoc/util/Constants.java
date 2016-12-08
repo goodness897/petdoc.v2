@@ -31,4 +31,8 @@ public final class Constants {
     public static final String ACTION_EVENT = "com.compet.petdoc.widget.ACTION_EVENT";
 
     public static final String ACTION_ACTIVITY = "com.compet.petdoc.widget.ACTION_ACTIVITY";
+
+    public static final String API_KEY = "AIzaSyDUEJ0_4zCnoG8QuXRPkajS-irSEU_7XKw";
+
+    public static final String NAVER_API = "https://openapi.naver.com/v1/map/geocode?encoding=utf-8&coordType=latlng&query=%s";
 }

@@ -15,9 +15,12 @@ import com.compet.petdoc.R;
 
 public class BaseFragment extends Fragment {
 
+    protected  Toolbar toolbar;
+
     public void initToolBar(final String title, View view, Context context) {
 
-        Toolbar toolbar = (Toolbar)view.findViewById(R.id.main_toolbar);
+        toolbar = (Toolbar)view.findViewById(R.id.main_toolbar);
+//        toolbar.bringToFront();
         AppCompatActivity activity = (AppCompatActivity)context;
 
         activity.setSupportActionBar(toolbar);

@@ -4,8 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,12 +34,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -78,7 +73,6 @@ public class MapDocFragment extends BaseFragment implements OnMapReadyCallback {
     private List<HospitalItem> hospitalItemList;
 
     private boolean convertAddress = false;
-
 
     public MapDocFragment() {
         // Required empty public constructor
@@ -130,7 +124,6 @@ public class MapDocFragment extends BaseFragment implements OnMapReadyCallback {
 
         initToolBar("지도", view, mContext);
 
-
         mapView = (MapView)view.findViewById(R.id.map);
 
         if (checkPlayServices()) {
@@ -181,9 +174,9 @@ public class MapDocFragment extends BaseFragment implements OnMapReadyCallback {
                                 hospitalItem = hospitalItemList.get(i);
                                 Log.d(TAG, "병원 이름 : " + hospitalItem.getHosName());
                                 getFragmentManager().beginTransaction()
-                                        .replace(R.id.container, DetailFragment.newInstance(hospitalItem))
-                                        .addToBackStack(null)
-                                        .commit();
+                                                    .replace(R.id.container, DetailFragment.newInstance(hospitalItem))
+                                                    .addToBackStack(null)
+                                                    .commit();
                                 return;
                             }
                         }
@@ -195,7 +188,10 @@ public class MapDocFragment extends BaseFragment implements OnMapReadyCallback {
 
             if (!convertAddress) {
                 if (hospitalItem != null) {
-                    hospitalLatLng = findLatLng(hospitalItem.getAddress());
+                    Log.d(TAG,
+                          "latitude : " + hospitalItem.getLatitude() + " longitude : " + hospitalItem.getLongitude());
+
+                    hospitalLatLng = new LatLng(hospitalItem.getLongitude(), hospitalItem.getLatitude());
                     if (hospitalLatLng != null) {
 
                         Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
@@ -207,64 +203,24 @@ public class MapDocFragment extends BaseFragment implements OnMapReadyCallback {
 
                     }
                 } else {
-                    for (int i = 0; i < hospitalItemList.size(); i++) {
-                        hospitalLatLng = findLatLng(hospitalItemList.get(i).getAddress());
-                        if (hospitalLatLng != null) {
-                            mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
-                                                                    .title(hospitalItemList.get(i).getHosName()));
+                    if (hospitalItemList.size() > 0) {
+                        for (int i = 0; i < hospitalItemList.size(); i++) {
+                            if (hospitalItem.getLongitude() != 0 && hospitalItem.getLatitude() != 0) {
+                                hospitalLatLng = new LatLng(hospitalItem.getLongitude(), hospitalItem.getLatitude());
+                            }
+                            if (hospitalLatLng != null) {
+                                mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
+                                                                        .title(hospitalItemList.get(i).getHosName()));
+                            }
                         }
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hospitalLatLng, 15));
                     }
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(findLatLng(hospitalItemList.get(0)
-                                                                                                       .getAddress()),
-                                                                            15));
 
                 }
             }
 
         }
     }
-
-    private LatLng findLatLng(String address) {
-
-        convertAddress = true;
-
-        Log.d(TAG, "바뀌기 전 주소 : " + address);
-        Geocoder geocoder = new Geocoder(mContext);
-        try {
-
-            List<Address> addressList = geocoder.getFromLocationName(address, 5);
-            Iterator<Address> addrs = addressList.iterator();
-
-            String infoAddr = "";
-            double lat = 0;
-            double lng = 0;
-            while (addrs.hasNext()) {
-                Address loc = addrs.next();
-                infoAddr += String.format(Locale.KOREA, "Coord : %f. %f", loc.getLatitude(), loc.getLatitude());
-                lat = loc.getLatitude();
-                lng = loc.getLongitude();
-
-                Log.d(TAG, "병원 좌표 : " + lat + "," + lng);
-
-                return new LatLng(lat, lng);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            convertAddress = false;
-        }
-
-        return null;
-    }
-
-    //    tected synchronized void buildGoogleApiClient() {
-    //
-    //        mGoogleApiClient = new GoogleApiClient.Builder(mContext).addConnectionCallbacks(this)
-    //                                                                .addOnConnectionFailedListener(this)
-    //                                                                .addApi(LocationServices.API)
-    //                                                                .build();
-    //    }
 
     private boolean checkPlayServices() {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();

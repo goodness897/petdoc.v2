@@ -141,7 +141,10 @@ public class MainFragment extends BaseFragment implements
 
             @Override
             public void onClick(View view) {
-                getFragmentManager().beginTransaction().replace(R.id.container, SearchFragment.newInstance()).commit();
+                getFragmentManager().beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.container, SearchFragment.newInstance())
+                        .commit();
             }
         });
         Button mapButton = (Button)view.findViewById(R.id.btn_map);
