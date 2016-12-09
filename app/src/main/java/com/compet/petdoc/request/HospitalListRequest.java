@@ -4,9 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.compet.petdoc.data.HospitalItem;
-import com.compet.petdoc.manager.NetworkManager;
 import com.compet.petdoc.manager.NetworkRequest;
-import com.compet.petdoc.util.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,9 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Mu on 2016-11-30.
@@ -83,27 +79,6 @@ public class HospitalListRequest extends NetworkRequest implements NetworkReques
                         String phoneNumber = hospital.getString("SITE_TEL");
                         if (!address.equals("    ")) {
                             hospitalItem.setHosName(name);
-
-                            NaverAddressToPointRequest request = new NaverAddressToPointRequest(mContext,
-                                                                                                Constants.NAVER_API,
-                                                                                                Constants.GET,
-                                                                                                address);
-                            NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
-
-                                @Override
-                                public void onSuccess(NetworkRequest request, Object result) {
-                                    Map<String, Double> map = (HashMap)result;
-
-                                    hospitalItem.setLatitude(map.get("latitude"));
-                                    hospitalItem.setLongitude(map.get("longitude"));
-                                }
-
-                                @Override
-                                public void onFail(NetworkRequest request, int errorCode, String errorMessage) {
-
-                                }
-                            });
-
                             hospitalItem.setAddress(address);
                             hospitalItem.setPhoneNumber(phoneNumber);
 

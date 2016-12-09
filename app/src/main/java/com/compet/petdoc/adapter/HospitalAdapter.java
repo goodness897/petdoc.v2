@@ -1,4 +1,4 @@
-package com.compet.petdoc.controller;
+package com.compet.petdoc.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,15 +11,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.compet.petdoc.R;
 import com.compet.petdoc.data.HospitalItem;
 import com.compet.petdoc.fragment.MapDocFragment;
+import com.compet.petdoc.manager.NetworkManager;
+import com.compet.petdoc.manager.NetworkRequest;
+import com.compet.petdoc.request.NaverAddressToPointRequest;
+import com.compet.petdoc.util.Constants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Mu on 2016-10-20.
@@ -97,8 +102,6 @@ public class HospitalAdapter extends BaseAdapter {
 
         TextView titleView = (TextView)convertView.findViewById(R.id.text_hospital_name);
         TextView addressView = (TextView)convertView.findViewById(R.id.text_hospital_address);
-        ImageView mapView = (ImageView)convertView.findViewById(R.id.image_map);
-
 
         Button mapButton = (Button)convertView.findViewById(R.id.btn_map);
         Button callButton = (Button)convertView.findViewById(R.id.btn_call);
@@ -130,8 +133,29 @@ public class HospitalAdapter extends BaseAdapter {
         
         
 
-        HospitalItem hospitalItem = items.get(position);
+        final HospitalItem hospitalItem = items.get(position);
 
+
+        NaverAddressToPointRequest request = new NaverAddressToPointRequest(context,
+                Constants.NAVER_API,
+                Constants.GET,
+                hospitalItem.getAddress());
+        NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
+
+            @Override
+            public void onSuccess(NetworkRequest request, Object result) {
+                Map<String, Double> map = (HashMap)result;
+
+                hospitalItem.setLatitude(map.get("latitude"));
+                hospitalItem.setLongitude(map.get("longitude"));
+            }
+
+            @Override
+            public void onFail(NetworkRequest request, int errorCode, String errorMessage) {
+                hospitalItem.setLatitude(0);
+                hospitalItem.setLongitude(0);
+            }
+        });
 
         titleView.setText(hospitalItem.getHosName());
         addressView.setText(hospitalItem.getAddress());

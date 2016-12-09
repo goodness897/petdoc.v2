@@ -4,14 +4,20 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="mainColor">#29C089</color>
-    <color name="mainColor_transparent">#0029C089</color>
+    <color name="mainColor">#4CAF50</color>
+    <color name="mainColorDark">#388E3C</color>
+    <color name="mainColorAccent">#8BC34A</color>
+    <color name="toolbar_transparent">#00ffffff</color>
 
     <color name="white">#ffffff</color>
 
-    <color name="transparent">#00000000</color>
+    <color name="primaryText">#212121</color>
+    <color name="secondaryText">#757575</color>
+    <color name="dividerColor">#BDBDBD</color>
 
-    <color name="location_layout">#c19e91</color>
+    <color name="transparent">#4D29C089</color>
+
+    <color name="location_layout">#ffffffff</color>
 
     <color name="brightGray">#f9f9f9</color>
     <color name="gray">#BCBCBC</color>

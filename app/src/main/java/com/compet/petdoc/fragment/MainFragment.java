@@ -27,7 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.compet.petdoc.R;
-import com.compet.petdoc.controller.HospitalAdapter;
+import com.compet.petdoc.adapter.HospitalAdapter;
 import com.compet.petdoc.data.HospitalItem;
 import com.compet.petdoc.data.RegionItem;
 import com.compet.petdoc.manager.NetworkManager;
@@ -90,6 +90,8 @@ public class MainFragment extends BaseFragment implements
 
     private List<RegionItem> regionList;
 
+    private HospitalListRequest request;
+
     public MainFragment() {
         // Required empty public constructor
     }
@@ -118,6 +120,8 @@ public class MainFragment extends BaseFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "MainFragment onCreate() 실행");
+
         if (getArguments() != null) {
             regionItem = (RegionItem)getArguments().getSerializable(Constants.REGION);
         }
@@ -128,7 +132,11 @@ public class MainFragment extends BaseFragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_region_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        Log.d(TAG, "MainFragment OnCreateView() 실행");
+
+        startIndex = 1;
+        endIndex = 10;
         setHasOptionsMenu(true);
         initToolBar(getString(R.string.app_name), view, mContext);
 
@@ -142,9 +150,9 @@ public class MainFragment extends BaseFragment implements
             @Override
             public void onClick(View view) {
                 getFragmentManager().beginTransaction()
-                        .addToBackStack(null)
-                        .replace(R.id.container, SearchFragment.newInstance())
-                        .commit();
+                                    .addToBackStack(null)
+                                    .replace(R.id.container, SearchFragment.newInstance())
+                                    .commit();
             }
         });
         Button mapButton = (Button)view.findViewById(R.id.btn_map);
@@ -234,6 +242,8 @@ public class MainFragment extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "MainFragment OnResume() 실행");
+        mAdapter.clear();
         startIndex = 1;
         endIndex = 10;
 
@@ -258,7 +268,7 @@ public class MainFragment extends BaseFragment implements
 
         mLockListView = true;
 
-        HospitalListRequest request = new HospitalListRequest(getContext(),
+        request = new HospitalListRequest(getContext(),
                                                               url,
                                                               Constants.GET,
                                                               String.valueOf(startIndex),
@@ -274,6 +284,8 @@ public class MainFragment extends BaseFragment implements
                     mLockListView = false;
                     footerView.setVisibility(View.GONE);
                     mListAdd = false;
+                    startIndex = endIndex + 1;
+                    endIndex = endIndex + 10;
 
                 }
 
@@ -296,8 +308,7 @@ public class MainFragment extends BaseFragment implements
 
         footerView.setVisibility(View.VISIBLE);
         mLockListView = true;
-        startIndex = endIndex + 1;
-        endIndex = endIndex + 10;
+
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
                                                               url,
@@ -313,6 +324,8 @@ public class MainFragment extends BaseFragment implements
 
                     mAdapter.addItem((List<HospitalItem>)result);
                     mLockListView = false;
+                    startIndex = endIndex + 1;
+                    endIndex = endIndex + 10;
                 } else {
                     footerView.setVisibility(View.GONE);
                 }
@@ -323,7 +336,8 @@ public class MainFragment extends BaseFragment implements
             public void onFail(NetworkRequest request, int errorCode, String errorMessage) {
 
                 Toast.makeText(getContext(), "서버 오류 입니다. 다음에 다시 시도해주세요.", Toast.LENGTH_LONG);
-
+                startIndex = 1;
+                endIndex = 10;
                 mLockListView = true;
                 footerView.setVisibility(View.GONE);
 
@@ -451,10 +465,6 @@ public class MainFragment extends BaseFragment implements
         if (requestCode == RC_PERMISSION) {
             if (permissions != null) {
                 boolean granted = true;
-                if (regionItem == null) {
-                    getUserLocation();
-
-                }
                 for (int i = 0; i < permissions.length; i++) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                         granted = false;
@@ -466,8 +476,6 @@ public class MainFragment extends BaseFragment implements
             }
         }
     }
-
-
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -503,5 +511,12 @@ public class MainFragment extends BaseFragment implements
         }
 
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
 
 }

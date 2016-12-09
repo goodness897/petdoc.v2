@@ -23,13 +23,14 @@
 
 
         <TextView
+            android:textColor="@color/primaryText"
             android:id="@+id/text_hospital_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp" />
 
         <TextView
-            android:textColor="@color/gray"
+            android:textColor="@color/secondaryText"
             android:id="@+id/text_hospital_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

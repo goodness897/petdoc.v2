@@ -1,4 +1,4 @@
-package com.compet.petdoc.controller;
+package com.compet.petdoc.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -48,7 +48,6 @@ public class RegionGridAdapter extends BaseAdapter {
     public RegionGridAdapter(Context context, int layout) {
         this.context = context;
         this.layout = layout;
-        this.items = items;
         inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 

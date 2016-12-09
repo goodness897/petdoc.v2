@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.GridView;
 
 import com.compet.petdoc.R;
-import com.compet.petdoc.controller.RegionGridAdapter;
+import com.compet.petdoc.adapter.RegionGridAdapter;
 import com.compet.petdoc.data.RegionItem;
 import com.compet.petdoc.util.HospitalURL;
 

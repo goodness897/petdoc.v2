@@ -205,8 +205,8 @@ public class MapDocFragment extends BaseFragment implements OnMapReadyCallback {
                 } else {
                     if (hospitalItemList.size() > 0) {
                         for (int i = 0; i < hospitalItemList.size(); i++) {
-                            if (hospitalItem.getLongitude() != 0 && hospitalItem.getLatitude() != 0) {
-                                hospitalLatLng = new LatLng(hospitalItem.getLongitude(), hospitalItem.getLatitude());
+                            if (hospitalItemList.get(i).getLongitude() != 0 && hospitalItemList.get(i).getLatitude() != 0) {
+                                hospitalLatLng = new LatLng(hospitalItemList.get(i).getLongitude(), hospitalItemList.get(i).getLatitude());
                             }
                             if (hospitalLatLng != null) {
                                 mGoogleMap.addMarker(new MarkerOptions().position(hospitalLatLng)
