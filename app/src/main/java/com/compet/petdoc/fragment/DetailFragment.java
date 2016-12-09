@@ -91,6 +91,8 @@ public class DetailFragment extends BaseFragment {
         } else {
             callButton.setEnabled(true);
         }
+
+
         callButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
