@@ -1,5 +1,7 @@
 package com.compet.petdoc.data;
 
+import android.provider.BaseColumns;
+
 /**
  * Created by Mu on 2016-11-30.
  */
@@ -54,5 +56,19 @@ public class HospitalItem implements java.io.Serializable {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public interface HospitalInfo extends BaseColumns {
+
+        public static final String TABLE = "hospitalInfo";
+
+        public static final String COLUMN_NAME = "name";
+
+        public static final String COLUMN_LOCATION = "location";
+
+        public static final String COLUMN_PHONE_NUMBER = "phoneNumber";
+
+
+
     }
 }

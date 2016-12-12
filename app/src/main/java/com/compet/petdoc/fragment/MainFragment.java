@@ -16,6 +16,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -210,6 +213,27 @@ public class MainFragment extends BaseFragment implements
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.bookmark_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_search:
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.container, BookmarkFragment.newInstance())
+                        .addToBackStack(null)
+                        .commit();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         if (mGoogleApiClient.isConnected()) {
@@ -269,10 +293,10 @@ public class MainFragment extends BaseFragment implements
         mLockListView = true;
 
         request = new HospitalListRequest(getContext(),
-                                                              url,
-                                                              Constants.GET,
-                                                              String.valueOf(startIndex),
-                                                              String.valueOf(endIndex));
+                                          url,
+                                          Constants.GET,
+                                          String.valueOf(startIndex),
+                                          String.valueOf(endIndex));
         NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener() {
 
             @Override
@@ -308,7 +332,6 @@ public class MainFragment extends BaseFragment implements
 
         footerView.setVisibility(View.VISIBLE);
         mLockListView = true;
-
 
         HospitalListRequest request = new HospitalListRequest(getContext(),
                                                               url,
@@ -517,6 +540,5 @@ public class MainFragment extends BaseFragment implements
         super.onPause();
 
     }
-
 
 }
